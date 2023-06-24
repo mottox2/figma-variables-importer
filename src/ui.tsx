@@ -5,14 +5,22 @@ import {
   Muted,
   render,
   Text,
-  TextboxNumeric,
+  Textbox,
+  TextboxMultiline,
   VerticalSpace
 } from '@create-figma-plugin/ui'
 import { emit } from '@create-figma-plugin/utilities'
 import { h } from 'preact'
-import { useCallback, useState } from 'preact/hooks'
+import { useCallback, useMemo, useState } from 'preact/hooks'
+import Papa from 'papaparse'
+import '!./styles.css'
 
-import { CloseHandler, CreateRectanglesHandler, VariablesData } from './types'
+import { CreateRectanglesHandler, VariablesData, VariableData } from './types'
+
+const initialInput = `,light, dark
+colors/background, #FFFFFF, #020817
+colors/foreground, #020817, #F8FAFC
+`
 
 const data: VariablesData = {
   variables: [
@@ -32,29 +40,74 @@ const data: VariablesData = {
   modes: ['mode1', 'mode2']
 }
 
+const table2data = (table: string[][]) => {
+  let modes: string[] = []
+  let variables = []
+  for (let i = 0; i < table.length; i++) {
+    const row = table[i]
+    if (i === 0) {
+      modes = row.slice(1)
+    } else {
+      const variable: VariableData = {
+        name: row[0],
+        type: 'STRING',
+        rawValues: {},
+        values: {}
+      }
+      for (let j = 1; j < row.length; j++) {
+        const mode = modes[j - 1]
+        const value = row[j]
+        variable.rawValues[mode] = value
+        if (typeof value === 'string' && value.startsWith('#')) {
+          variable.type = 'COLOR'
+        } else if (typeof value === 'number') {
+          variable.type = 'FLOAT'
+        }
+        // ここでtypeの判断、valuesにパースしたものを入れる
+        variable.values[mode] = value
+      }
+      variables.push(variable)
+    }
+  }
+  return { modes, variables }
+}
+
 function Plugin() {
+  const [input, setInput] = useState(initialInput)
+  const { parsed, data, name } = useMemo(() => {
+    const result = Papa.parse(input, {
+      skipEmptyLines: true,
+      dynamicTyping: true,
+      transform(value, field) {
+        return value.trim()
+      },
+    })
+    const name = (result.data as string[][])[0][0]
+    const data = table2data(result.data as any)
+    return { parsed: result, data, name }
+  }, [input])
   const handleCreateRectanglesButtonClick = useCallback(
     () => {
       emit<CreateRectanglesHandler>('CREATE_RECTANGLES', 1)
     }
     , [])
-  const handleCloseButtonClick = useCallback(function () {
-    emit<CloseHandler>('CLOSE')
-  }, [])
   return (
     <Container space="medium">
-      <VerticalSpace space="large" />
+      <VerticalSpace space="small" />
+      <TextboxMultiline value={input} onChange={(e) => setInput(e.currentTarget.value)} rows={8} variant='border' />
+      {/* {JSON.stringify(parsed.data)} */}
+      <VerticalSpace space="medium" />
       <Text>
         <Muted>Preview</Muted>
       </Text>
-      <VerticalSpace space="small" />
+      <VerticalSpace space="extraSmall" />
       <table>
         <thead>
           <tr>
-            <th>Name</th>
+            <th><Text>Name</Text></th>
             {
               data.modes.map((mode) => {
-                return <th>{mode}</th>
+                return <th><Text>{mode}</Text></th>
               })
             }
           </tr>
@@ -62,21 +115,13 @@ function Plugin() {
         <tbody>
           {
             data.variables.map((variable) => {
-              console.log(variable.values)
+              // console.log(variable.values)
               return <tr>
-                <td>{variable.name}</td>
+                <td>{variable.type} {variable.name}</td>
                 {
                   Object.keys(variable.values).map((mode) => {
                     const value = variable.values[mode]
-                    return <td>
-                      {value}
-                      {/* <TextboxNumeric
-                        value={variable.rawValues[mode]}
-                        onChange={function (value) {
-                          variable.rawValues[mode] = value
-                        }}
-                      /> */}
-                    </td>
+                    return <td>{value}</td>
                   })
                 }
               </tr>
@@ -88,10 +133,7 @@ function Plugin() {
       <VerticalSpace space="extraLarge" />
       <Columns space="extraSmall">
         <Button fullWidth onClick={handleCreateRectanglesButtonClick}>
-          Create
-        </Button>
-        <Button fullWidth onClick={handleCloseButtonClick} secondary>
-          Close
+          {name ? `Import as ${name}` : 'Import'}
         </Button>
       </Columns>
       <VerticalSpace space="small" />

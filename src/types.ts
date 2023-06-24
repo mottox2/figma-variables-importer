@@ -1,12 +1,14 @@
 import { EventHandler } from '@create-figma-plugin/utilities'
 
+export type VariableData = {
+  name: string,
+  type: VariableResolvedDataType,
+  rawValues: Record<string, string>
+  values: Record<string, any>
+}
+
 export type VariablesData = {
-  variables: {
-    name: string,
-    type: VariableResolvedDataType,
-    rawValues: Record<string, string>
-    values: Record<string, any>
-  }[]
+  variables: VariableData[]
   modes: string[]
 }
 

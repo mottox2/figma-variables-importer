@@ -1,0 +1,12 @@
+table,
+tr,
+th,
+td {
+  font-size: var(--font-size-11);
+  padding: 0.25rem 0;
+}
+
+th:not(:last-child),
+td:not(:last-child) {
+  padding-right: 1rem;
+}
