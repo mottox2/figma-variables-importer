@@ -15,7 +15,7 @@ import { useCallback, useMemo, useState } from 'preact/hooks'
 import Papa from 'papaparse'
 import '!./styles.css'
 
-import { CreateRectanglesHandler, VariablesData, VariableData } from './types'
+import { CreateRectanglesHandler, VariablesData, VariableData, ImportDataHandler } from './types'
 
 const initialInput = `,light, dark
 colors/background, #FFFFFF, #020817
@@ -86,11 +86,9 @@ function Plugin() {
     const data = table2data(result.data as any)
     return { parsed: result, data, name }
   }, [input])
-  const handleCreateRectanglesButtonClick = useCallback(
-    () => {
-      emit<CreateRectanglesHandler>('CREATE_RECTANGLES', 1)
-    }
-    , [])
+  const handleButtonClick = () => {
+    emit<ImportDataHandler>('IMPORT_DATA', data)
+  }
   return (
     <Container space="medium">
       <VerticalSpace space="small" />
@@ -132,7 +130,7 @@ function Plugin() {
       </table>
       <VerticalSpace space="extraLarge" />
       <Columns space="extraSmall">
-        <Button fullWidth onClick={handleCreateRectanglesButtonClick}>
+        <Button fullWidth onClick={handleButtonClick}>
           {name ? `Import as ${name}` : 'Import'}
         </Button>
       </Columns>

@@ -12,6 +12,12 @@ export type VariablesData = {
   modes: string[]
 }
 
+export interface ImportDataHandler extends EventHandler {
+  name: 'IMPORT_DATA'
+  handler: (data: VariablesData) => void
+}
+
+
 export interface CreateRectanglesHandler extends EventHandler {
   name: 'CREATE_RECTANGLES'
   handler: (count: number) => void
