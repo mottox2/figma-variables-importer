@@ -12,19 +12,32 @@ import { emit } from '@create-figma-plugin/utilities'
 import { h } from 'preact'
 import { useCallback, useState } from 'preact/hooks'
 
-import { CloseHandler, CreateRectanglesHandler } from './types'
+import { CloseHandler, CreateRectanglesHandler, VariablesData } from './types'
+
+const data: VariablesData = {
+  variables: [
+    {
+      name: 'color-primary',
+      type: 'COLOR',
+      rawValues: {
+        mode1: '#fff',
+        mode2: '#000'
+      },
+      values: {
+        mode1: '#fff',
+        mode2: '#000'
+      }
+    }
+  ],
+  modes: ['mode1', 'mode2']
+}
 
 function Plugin() {
-  const [count, setCount] = useState<number | null>(5)
-  const [countString, setCountString] = useState('5')
   const handleCreateRectanglesButtonClick = useCallback(
-    function () {
-      if (count !== null) {
-        emit<CreateRectanglesHandler>('CREATE_RECTANGLES', count)
-      }
-    },
-    [count]
-  )
+    () => {
+      emit<CreateRectanglesHandler>('CREATE_RECTANGLES', 1)
+    }
+    , [])
   const handleCloseButtonClick = useCallback(function () {
     emit<CloseHandler>('CLOSE')
   }, [])
@@ -32,15 +45,46 @@ function Plugin() {
     <Container space="medium">
       <VerticalSpace space="large" />
       <Text>
-        <Muted>Count</Muted>
+        <Muted>Preview</Muted>
       </Text>
       <VerticalSpace space="small" />
-      <TextboxNumeric
-        onNumericValueInput={setCount}
-        onValueInput={setCountString}
-        value={countString}
-        variant="border"
-      />
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            {
+              data.modes.map((mode) => {
+                return <th>{mode}</th>
+              })
+            }
+          </tr>
+        </thead>
+        <tbody>
+          {
+            data.variables.map((variable) => {
+              console.log(variable.values)
+              return <tr>
+                <td>{variable.name}</td>
+                {
+                  Object.keys(variable.values).map((mode) => {
+                    const value = variable.values[mode]
+                    return <td>
+                      {value}
+                      {/* <TextboxNumeric
+                        value={variable.rawValues[mode]}
+                        onChange={function (value) {
+                          variable.rawValues[mode] = value
+                        }}
+                      /> */}
+                    </td>
+                  })
+                }
+              </tr>
+            })
+          }
+        </tbody>
+
+      </table>
       <VerticalSpace space="extraLarge" />
       <Columns space="extraSmall">
         <Button fullWidth onClick={handleCreateRectanglesButtonClick}>

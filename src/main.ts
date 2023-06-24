@@ -4,22 +4,12 @@ import { CloseHandler, CreateRectanglesHandler } from './types'
 
 export default function () {
   once<CreateRectanglesHandler>('CREATE_RECTANGLES', function (count: number) {
-    const nodes: Array<SceneNode> = []
-    for (let i = 0; i < count; i++) {
-      const rect = figma.createRectangle()
-      rect.x = i * 150
-      rect.fills = [
-        {
-          color: { b: 0, g: 0.5, r: 1 },
-          type: 'SOLID'
-        }
-      ]
-      figma.currentPage.appendChild(rect)
-      nodes.push(rect)
-    }
-    figma.currentPage.selection = nodes
-    figma.viewport.scrollAndZoomIntoView(nodes)
-    figma.closePlugin()
+    const collection = figma.variables.createVariableCollection('Sample')
+    // 個人やフリープランでモードを追加しようとすると例外が発生する
+    // collection.addMode('dark')
+    const modeId = collection.modes[0].modeId
+    const variable = figma.variables.createVariable('variable1', collection.id, "FLOAT")
+    variable.setValueForMode(modeId, 1.2)
   })
   once<CloseHandler>('CLOSE', function () {
     figma.closePlugin()

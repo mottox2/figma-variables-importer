@@ -18,8 +18,8 @@
     "editorType": [
       "figma"
     ],
-    "id": "preact-rectangles",
-    "name": "Preact Rectangles",
+    "id": "variables-importer",
+    "name": "Variables Importer",
     "main": "src/main.ts",
     "ui": "src/ui.tsx"
   }
