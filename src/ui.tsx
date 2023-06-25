@@ -15,30 +15,12 @@ import { useCallback, useMemo, useState } from 'preact/hooks'
 import Papa from 'papaparse'
 import '!./styles.css'
 
-import { CreateRectanglesHandler, VariablesData, VariableData, ImportDataHandler } from './types'
+import { VariablesData, VariableData, ImportDataHandler } from './types'
 
 const initialInput = `,light, dark
 colors/background, #FFFFFF, #020817
 colors/foreground, #020817, #F8FAFC
 `
-
-const data: VariablesData = {
-  variables: [
-    {
-      name: 'color-primary',
-      type: 'COLOR',
-      rawValues: {
-        mode1: '#fff',
-        mode2: '#000'
-      },
-      values: {
-        mode1: '#fff',
-        mode2: '#000'
-      }
-    }
-  ],
-  modes: ['mode1', 'mode2']
-}
 
 const table2data = (table: string[][]) => {
   let modes: string[] = []
