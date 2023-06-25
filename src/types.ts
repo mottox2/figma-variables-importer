@@ -8,6 +8,7 @@ export type VariableData = {
 }
 
 export type VariablesData = {
+  name: string | null
   variables: VariableData[]
   modes: string[]
 }

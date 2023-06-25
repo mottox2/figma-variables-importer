@@ -13,8 +13,10 @@ export default function () {
   })
   on<ImportDataHandler>('IMPORT_DATA', function (data: VariablesData) {
     console.log(data)
-    const { variables, modes } = data
-    const collection = figma.variables.createVariableCollection('Sample')
+    const { variables, modes, name } = data
+    // default yyyy-mm-dd hh:mm:ss
+    const collcetionName = name || 'Imported at ' + new Date().toISOString()
+    const collection = figma.variables.createVariableCollection(collcetionName)
     let modelIds: Record<string, string> = {}
     modes.forEach(mode => {
       const modeId = collection.addMode(mode)
@@ -39,6 +41,6 @@ export default function () {
   });
   showUI({
     height: 420,
-    width: 260
+    width: 300
   })
 }

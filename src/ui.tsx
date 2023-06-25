@@ -74,7 +74,7 @@ const table2data = (table: string[][]) => {
 
 function Plugin() {
   const [input, setInput] = useState(initialInput)
-  const { parsed, data, name } = useMemo(() => {
+  const { parsed, data } = useMemo(() => {
     const result = Papa.parse(input, {
       skipEmptyLines: true,
       dynamicTyping: true,
@@ -83,8 +83,11 @@ function Plugin() {
       },
     })
     const name = (result.data as string[][])[0][0]
-    const data = table2data(result.data as any)
-    return { parsed: result, data, name }
+    const data = {
+      name,
+      ...table2data(result.data as any),
+    }
+    return { parsed: result, data }
   }, [input])
   const handleButtonClick = () => {
     emit<ImportDataHandler>('IMPORT_DATA', data)
@@ -131,7 +134,7 @@ function Plugin() {
       <VerticalSpace space="extraLarge" />
       <Columns space="extraSmall">
         <Button fullWidth onClick={handleButtonClick}>
-          {name ? `Import as ${name}` : 'Import'}
+          {data.name ? `Import as ${data.name}` : 'Import'}
         </Button>
       </Columns>
       <VerticalSpace space="small" />
